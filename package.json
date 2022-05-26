@@ -1,0 +1,16 @@
+{
+    "name": "atlsa-split",
+    "version": "1.0.0",
+    "description": "",
+    "main": "./build/Application.js",
+    "scripts": {
+        "tsc:w": "tsc -w"
+    },
+    "author": "",
+    "license": "ISC",
+    "dependencies": {
+        "@types/node": "^17.0.23",
+        "commander": "^9.1.0",
+        "jimp": "^0.16.1"
+    }
+}
