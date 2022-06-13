@@ -48,21 +48,23 @@ var Application = /** @class */ (function () {
     }
     Application.Main = function (argv) {
         return __awaiter(this, void 0, void 0, function () {
-            var command, options, importPath;
+            var command, options, isDirectory, importPath;
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
                         command = new Commander_1.default.Command();
                         command.version('1.0.0')
                             .option('-i, --input <string>', '资源路径')
+                            .option('-d, --directory', '生成独立文件夹')
                             .parse(argv);
                         options = command.opts();
+                        isDirectory = options.directory;
                         importPath = options.input;
                         if (!fs_1.default.existsSync(importPath) || !fs_1.default.statSync(importPath).isDirectory()) {
                             console.error("输入文件夹不存在", importPath);
                             return [2 /*return*/];
                         }
-                        return [4 /*yield*/, Application.DealDirectory(importPath)];
+                        return [4 /*yield*/, Application.DealDirectory(isDirectory, importPath)];
                     case 1:
                         _a.sent();
                         return [2 /*return*/];
@@ -70,7 +72,7 @@ var Application = /** @class */ (function () {
             });
         });
     };
-    Application.DealDirectory = function (directoryPath) {
+    Application.DealDirectory = function (isDirectory, directoryPath) {
         return __awaiter(this, void 0, void 0, function () {
             var dirents, direntsIndex, dirent, direntPath;
             return __generator(this, function (_a) {
@@ -84,9 +86,9 @@ var Application = /** @class */ (function () {
                         dirent = dirents[direntsIndex];
                         direntPath = directoryPath + "\\" + dirent.name;
                         if (!dirent.isDirectory()) return [3 /*break*/, 2];
-                        Application.DealDirectory(direntPath);
+                        Application.DealDirectory(isDirectory, direntPath);
                         return [3 /*break*/, 4];
-                    case 2: return [4 /*yield*/, Application.DealFile(direntPath)];
+                    case 2: return [4 /*yield*/, Application.DealFile(isDirectory, direntPath)];
                     case 3:
                         _a.sent();
                         _a.label = 4;
@@ -98,7 +100,7 @@ var Application = /** @class */ (function () {
             });
         });
     };
-    Application.DealFile = function (filePath) {
+    Application.DealFile = function (isDirectory, filePath) {
         return __awaiter(this, void 0, void 0, function () {
             var directoryPath, extension, data, lines, lineIndex, atlasName, atlasSize, atlasPath, atlasDirectoryPath, imageName, imagePath, imageDirectoryPath, isRotate, xy, size, orig, offset, index, image, origImage, offsetYMax;
             return __generator(this, function (_a) {
@@ -128,7 +130,13 @@ var Application = /** @class */ (function () {
                     case 2:
                         if (!(lines[lineIndex] != "")) return [3 /*break*/, 4];
                         imageName = lines[lineIndex].replace("/", "\\") + ".png";
-                        imagePath = directoryPath + "\\" + imageName;
+                        imagePath = "";
+                        if (isDirectory) {
+                            imagePath = directoryPath + "\\" + path_1.default.basename(filePath, ".atlas") + "\\" + imageName;
+                        }
+                        else {
+                            imagePath = directoryPath + "\\" + imageName;
+                        }
                         imageDirectoryPath = path_1.default.dirname(imagePath);
                         isRotate = JSON.parse(lines[lineIndex + 1].split(": ")[1]);
                         xy = JSON.parse("[" + lines[lineIndex + 2].split(": ")[1] + "]");

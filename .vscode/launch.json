@@ -13,6 +13,7 @@
             ],
             "program": "${workspaceFolder}\\Build\\Application.js",
             "args": [
+                "-d",
                 "-i",
                 "${workspaceFolder}\\..\\SkeletonData",
             ],

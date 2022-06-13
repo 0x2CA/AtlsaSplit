@@ -10,10 +10,12 @@ export default class Application {
         let command = new Commander.Command()
         command.version('1.0.0')
             .option('-i, --input <string>', '资源路径')
+            .option('-d, --directory', '生成独立文件夹')
             .parse(argv);
 
         let options = command.opts();
 
+        let isDirectory = options.directory;
         let importPath = options.input;
 
         if (!fs.existsSync(importPath) || !fs.statSync(importPath).isDirectory()) {
@@ -21,10 +23,10 @@ export default class Application {
             return;
         }
 
-        await Application.DealDirectory(importPath);
+        await Application.DealDirectory(isDirectory, importPath);
     }
 
-    private static async DealDirectory(directoryPath: string) {
+    private static async DealDirectory(isDirectory: boolean, directoryPath: string) {
 
         let dirents = fs.readdirSync(directoryPath, { withFileTypes: true });
 
@@ -34,14 +36,14 @@ export default class Application {
             let direntPath = directoryPath + "\\" + dirent.name;
 
             if (dirent.isDirectory()) {
-                Application.DealDirectory(direntPath)
+                Application.DealDirectory(isDirectory, direntPath)
             } else {
-                await Application.DealFile(direntPath);
+                await Application.DealFile(isDirectory, direntPath);
             }
         }
     }
 
-    private static async DealFile(filePath: string) {
+    private static async DealFile(isDirectory: boolean, filePath: string) {
         let directoryPath = path.dirname(filePath);
         console.log("开始处理", path.basename(filePath));
         let extension = path.extname(filePath);
@@ -76,7 +78,13 @@ export default class Application {
 
                     let imageName = lines[lineIndex].replace("/", "\\") + ".png";
 
-                    let imagePath = directoryPath + "\\" + imageName;
+                    let imagePath = "";
+
+                    if (isDirectory) {
+                        imagePath = directoryPath + "\\" + path.basename(filePath, ".atlas") + "\\" + imageName;
+                    } else {
+                        imagePath = directoryPath + "\\" + imageName;
+                    }
 
                     let imageDirectoryPath = path.dirname(imagePath);
 
